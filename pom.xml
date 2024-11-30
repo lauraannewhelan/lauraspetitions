@@ -55,6 +55,7 @@
     </dependencies>
 
     <build>
+        <finalName>lauraspetitions</finalName> <!-- Ensure this matches your WAR file name -->
         <plugins>
             <!-- Spring Boot Maven plugin for building executable WAR files -->
             <plugin>
