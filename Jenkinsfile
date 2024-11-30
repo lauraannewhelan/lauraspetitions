@@ -2,18 +2,18 @@ pipeline {
     agent any
 
     environment {
-        // Define environment variables for easier maintenance
-        WAR_NAME = "lauraannewhelanspetitions.war" // Change this based on your desired WAR name
-        TOMCAT_HOST = "ec2-xx-xx-xx-xx.compute-1.amazonaws.com" // Replace with your EC2 Public IP
-        TOMCAT_PORT = "9090"
-        TOMCAT_USER = "your_tomcat_user" // Replace with your Tomcat user (e.g., "ubuntu")
-        GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git" // Your GitHub repository
+        WAR_NAME = "lauraspetitions.war"  // The WAR file name (use .war extension)
+        TOMCAT_HOST = "13.60.215.49"  // Your EC2 public IP (without http:// and port)
+        TOMCAT_PORT = "8080"  // Tomcat port (updated to 8080 as per your request)
+        TOMCAT_USER = "ubuntu"  // Your EC2 username (ubuntu)
+        GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"  // Your GitHub repository URL
+        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/my-ec2-key.pem"  // Path to your SSH private key
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Get the latest code from GitHub repository
+                // Get code from GitHub (no authentication required for public repositories)
                 git branch: 'main', url: "${GITHUB_REPO}"
             }
         }
@@ -54,12 +54,12 @@ pipeline {
 
         stage('Deploy to Tomcat') {
             steps {
-                // Request manual approval to deploy the WAR file
+                // Manual approval to deploy the WAR file
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
-                    // Deploy WAR file to Tomcat using SCP (ensure SSH keys are set up)
+                    // Deploy WAR to Tomcat using SCP
                     sh """
-                    scp -i /path/to/your/ssh-key.pem target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/
+                    scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
                     """
                 }
             }
