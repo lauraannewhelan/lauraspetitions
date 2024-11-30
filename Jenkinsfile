@@ -3,18 +3,17 @@ pipeline {
 
     environment {
         // Define environment variables for easier maintenance
-        WAR_NAME = "${env.USER_NAME}spetitions.war" // e.g., johnspetition.war
-        TOMCAT_HOST = "ec2-xx-xx-xx-xx.compute-1.amazonaws.com" // EC2 Public IP
+        WAR_NAME = "lauraannewhelanspetitions.war" // Change this based on your desired WAR name
+        TOMCAT_HOST = "ec2-xx-xx-xx-xx.compute-1.amazonaws.com" // Replace with your EC2 Public IP
         TOMCAT_PORT = "9090"
-        TOMCAT_USER = "your_tomcat_user"
-        TOMCAT_PASSWORD = "your_tomcat_password"
-        GITHUB_REPO = "https://github.com/yourusername/your-repo.git"
+        TOMCAT_USER = "your_tomcat_user" // Replace with your Tomcat user (e.g., "ubuntu")
+        GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git" // Your GitHub repository
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Get code from GitHub
+                // Get the latest code from GitHub repository
                 git branch: 'main', url: "${GITHUB_REPO}"
             }
         }
@@ -48,19 +47,19 @@ pipeline {
 
         stage('Archive WAR') {
             steps {
-                // Archive the WAR file
+                // Archive the WAR file for future reference
                 archiveArtifacts artifacts: '**/target/*.war', allowEmptyArchive: true
             }
         }
 
         stage('Deploy to Tomcat') {
             steps {
-                // Manual approval to deploy the WAR file
+                // Request manual approval to deploy the WAR file
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
-                    // Deploy WAR to Tomcat using SCP or FTP
+                    // Deploy WAR file to Tomcat using SCP (ensure SSH keys are set up)
                     sh """
-                    scp target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/path/to/tomcat/webapps/
+                    scp -i /path/to/your/ssh-key.pem target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/
                     """
                 }
             }
