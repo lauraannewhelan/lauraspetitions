@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    tools {
+        // Use the Maven tool that you configured in Jenkins' Global Tool Configuration
+        maven 'Maven'  // Ensure 'Maven' matches the name you set in Global Tool Configuration
+    }
+
     environment {
         WAR_NAME = "lauraspetitions.war"
         TOMCAT_HOST = "13.60.215.49"
@@ -18,7 +23,7 @@ pipeline {
                     checkout scm: [
                         $class: 'GitSCM',
                         branches: [[name: 'refs/heads/master']],  // Use master here
-                        userRemoteConfigs: [[url: 'https://github.com/lauraannewhelan/lauraspetitions.git']]
+                        userRemoteConfigs: [[url: GITHUB_REPO]]
                     ]
                 }
             }
@@ -27,6 +32,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+                    // Use Maven to build the project
                     sh 'mvn clean install'
                 }
             }
@@ -35,6 +41,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
+                    // Run tests using Maven
                     sh 'mvn test'
                 }
             }
@@ -43,6 +50,7 @@ pipeline {
         stage('Package') {
             steps {
                 script {
+                    // Package the application into a WAR file using Maven
                     sh 'mvn package'
                 }
             }
@@ -58,6 +66,7 @@ pipeline {
             steps {
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
+                    // Copy the WAR file to Tomcat's webapps directory
                     sh """
                     scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
                     """
