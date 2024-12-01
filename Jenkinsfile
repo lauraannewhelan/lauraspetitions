@@ -12,16 +12,18 @@ pipeline {
         TOMCAT_PORT = "8080"
         TOMCAT_USER = "ubuntu"
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
+        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa_jenkins"
+        SSH_CREDENTIALS_ID = "jenkins-ssh-key" // Set this to your Jenkins credentials ID for the SSH key
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Checkout from GitHub repository (you can modify this to your branch as needed)
+                    // Change the branch reference to 'master' if your branch is 'master'
                     checkout scm: [
                         $class: 'GitSCM',
-                        branches: [[name: 'refs/heads/master']],  // Use 'master' or any other branch
+                        branches: [[name: 'refs/heads/master']],  // Use master here
                         userRemoteConfigs: [[url: GITHUB_REPO]]
                     ]
                 }
@@ -65,11 +67,11 @@ pipeline {
             steps {
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
-                    // Ensure the SSH private key is available using the Jenkins credentials store
-                    sshagent(credentials: ['jenkins-ssh-key']) {
-                        // Use SCP to copy the WAR file to Tomcat's webapps directory
+                    // Use sshagent to provide the SSH credentials for scp
+                    sshagent(['${SSH_CREDENTIALS_ID}']) {
+                        // Copy the WAR file to Tomcat's webapps directory
                         sh """
-                        scp -o StrictHostKeyChecking=no target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
+                        scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
                         """
                     }
                 }
