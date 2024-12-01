@@ -11,7 +11,7 @@ pipeline {
         TOMCAT_PORT = "8080"
         TOMCAT_USER = "ubuntu"
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
-        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa_jenkins"
+        SSH_KEY_PATH = "SSH_KEY_PATH = "/Users/laurawhelan/.ssh/id_rsa_jenkins
         // Correctly using the SSH credentials ID here
         SSH_CREDENTIALS_ID = '5d7dffdc-0cd2-47db-a18c-4860e22e26f5'  // Directly specifying the ID
     }
