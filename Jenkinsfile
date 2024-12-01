@@ -7,7 +7,7 @@ pipeline {
         TOMCAT_PORT = "8080"  // Tomcat port (updated to 8080 as per your request)
         TOMCAT_USER = "ubuntu"  // Your EC2 username (ubuntu)
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"  // Your GitHub repository URL
-        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/my-ec2-key.pem"  // Path to your SSH private key
+        SSH_CREDENTIALS = credentials('EC2-Jenkins-SSH')  // Use Jenkins credentials for SSH key
     }
 
     stages {
@@ -57,9 +57,9 @@ pipeline {
                 // Manual approval to deploy the WAR file
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
-                    // Deploy WAR to Tomcat using SCP
+                    // Deploy WAR to Tomcat using SCP with Jenkins credentials
                     sh """
-                    scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
+                    sshpass -p '${SSH_CREDENTIALS_PASSPHRASE}' scp -o StrictHostKeyChecking=no -i ${SSH_CREDENTIALS} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
                     """
                 }
             }
