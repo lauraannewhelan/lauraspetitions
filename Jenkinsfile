@@ -8,7 +8,7 @@ pipeline {
     environment {
         WAR_NAME = "lauraspetitions.war"
         TOMCAT_HOST = "13.60.215.49"
-        TOMCAT_PORT = "8080"
+        TOMCAT_PORT = "9090"
         TOMCAT_USER = "ubuntu"
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
         SSH_KEY_PATH = "/Users/laurawhelan/.ssh/id_rsa_jenkins"
