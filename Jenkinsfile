@@ -2,18 +2,25 @@ pipeline {
     agent any
 
     environment {
-        WAR_NAME = "lauraspetitions.war"  // The WAR file name (use .war extension)
-        TOMCAT_HOST = "13.60.215.49"  // Your EC2 public IP (without http:// and port)
-        TOMCAT_PORT = "8080"  // Tomcat port (updated to 8080 as per your request)
-        TOMCAT_USER = "ubuntu"  // Your EC2 username (ubuntu)
-        GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"  // Your GitHub repository URL
-        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa_jenkins"  // Correct path to your SSH private key
+        WAR_NAME = "lauraspetitions.war"
+        TOMCAT_HOST = "13.60.215.49"
+        TOMCAT_PORT = "8080"
+        TOMCAT_USER = "ubuntu"
+        GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
+        SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa_jenkins"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: "${GITHUB_REPO}"
+                script {
+                    // Change the branch reference to 'master' if your branch is 'master'
+                    checkout scm: [
+                        $class: 'GitSCM',
+                        branches: [[name: 'refs/heads/master']],  // Use master here
+                        userRemoteConfigs: [[url: 'https://github.com/lauraannewhelan/lauraspetitions.git']]
+                    ]
+                }
             }
         }
 
