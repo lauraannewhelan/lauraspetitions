@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     tools {
-        // Use the Maven tool that you configured in Jenkins' Global Tool Configuration
-        maven 'Maven'  // Ensure 'Maven' matches the name you set in Global Tool Configuration
+        maven 'Maven'
     }
 
     environment {
@@ -13,17 +12,17 @@ pipeline {
         TOMCAT_USER = "ubuntu"
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
         SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa_jenkins"
-        SSH_CREDENTIALS_ID = '5d7dffdc-0cd2-47db-a18c-4860e22e26f5'  // Corrected
+        // Correctly using the SSH credentials ID here
+        SSH_CREDENTIALS_ID = '5d7dffdc-0cd2-47db-a18c-4860e22e26f5'  // Directly specifying the ID
     }
 
     stages {
         stage('Checkout') {
             steps {
                 script {
-                    // Change the branch reference to 'master' if your branch is 'master'
                     checkout scm: [
                         $class: 'GitSCM',
-                        branches: [[name: 'refs/heads/master']],  // Use master here
+                        branches: [[name: 'refs/heads/master']],
                         userRemoteConfigs: [[url: GITHUB_REPO]]
                     ]
                 }
@@ -33,7 +32,6 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    // Use Maven to build the project
                     sh 'mvn clean install'
                 }
             }
@@ -42,7 +40,6 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    // Run tests using Maven
                     sh 'mvn test'
                 }
             }
@@ -51,7 +48,6 @@ pipeline {
         stage('Package') {
             steps {
                 script {
-                    // Package the application into a WAR file using Maven
                     sh 'mvn package'
                 }
             }
@@ -67,9 +63,8 @@ pipeline {
             steps {
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
-                    // Use sshagent to provide the SSH credentials for scp
-                    sshagent(['${SSH_CREDENTIALS_ID}']) {
-                        // Copy the WAR file to Tomcat's webapps directory
+                    // Using the actual credentials ID in the ssh-agent step
+                    sshagent(['5d7dffdc-0cd2-47db-a18c-4860e22e26f5']) {
                         sh """
                         scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
                         """
