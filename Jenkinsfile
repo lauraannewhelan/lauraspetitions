@@ -13,7 +13,10 @@ pipeline {
         TOMCAT_USER = "ubuntu"
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
         SSH_KEY_PATH = "/var/lib/jenkins/.ssh/id_rsa_jenkins"
-        SSH_CREDENTIALS_ID = "jenkins-ssh-key" // Set this to your Jenkins credentials ID for the SSH key
+        SSH_CREDENTIALS_ID = environment {
+                                 SSH_CREDENTIALS_ID = '5d7dffdc-0cd2-47db-a18c-4860e22e26f5'
+                             }
+
     }
 
     stages {
