@@ -6,13 +6,13 @@ pipeline {
     }
 
     environment {
-        WAR_NAME = "lauraspetitions.war"  // Keep the WAR name the same
+        WAR_NAME = "lauraspetitions.war"
         TOMCAT_HOST = "13.60.215.49"
         TOMCAT_PORT = "8080"
         TOMCAT_USER = "ubuntu"
         GITHUB_REPO = "https://github.com/lauraannewhelan/lauraspetitions.git"
-        SSH_KEY_PATH = "/Users/laurawhelan/.ssh/id_rsa_jenkins"  // Corrected the SSH_KEY_PATH definition
-        SSH_CREDENTIALS_ID = '5d7dffdc-0cd2-47db-a18c-4860e22e26f5'  // Using the credentials ID
+        SSH_KEY_PATH = "/Users/laurawhelan/.ssh/id_rsa_jenkins"
+        SSH_CREDENTIALS_ID = '5d7dffdc-0cd2-47db-a18c-4860e22e26f5'
     }
 
     stages {
@@ -21,7 +21,7 @@ pipeline {
                 script {
                     checkout scm: [
                         $class: 'GitSCM',
-                        branches: [[name: 'refs/heads/master']],  // Use master or the branch you prefer
+                        branches: [[name: 'refs/heads/master']],
                         userRemoteConfigs: [[url: GITHUB_REPO]]
                     ]
                 }
@@ -66,15 +66,18 @@ pipeline {
             steps {
                 input message: 'Approve Deployment to Tomcat?', ok: 'Deploy'
                 script {
-                    // Deploy the WAR file to Tomcat using SCP
                     sshagent([SSH_CREDENTIALS_ID]) {
-                        // First, copy the WAR to a temporary directory on the Tomcat server
+                        // First, copy the WAR to a temporary directory on Tomcat server
                         sh """
                         scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/tmp/${WAR_NAME}
                         """
-                        // Then, use sudo to move the WAR file to the Tomcat webapps directory under its own name (not ROOT.war)
+                        // Then, move the WAR file to Tomcat's webapps directory as a new webapp
                         sh """
                         ssh -i ${SSH_KEY_PATH} ${TOMCAT_USER}@${TOMCAT_HOST} 'sudo mv /tmp/${WAR_NAME} /opt/tomcat/webapps/lauraspetitions.war'
+                        """
+                        // Restart Tomcat to deploy the new webapp
+                        sh """
+                        ssh -i ${SSH_KEY_PATH} ${TOMCAT_USER}@${TOMCAT_HOST} 'sudo systemctl restart tomcat'
                         """
                     }
                 }
