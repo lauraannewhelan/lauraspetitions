@@ -68,8 +68,13 @@ pipeline {
                 script {
                     // Deploy the WAR file to Tomcat using SCP
                     sshagent([SSH_CREDENTIALS_ID]) {
+                        // First, copy the WAR to a temporary directory
                         sh """
-                        scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/opt/tomcat/webapps/ROOT.war
+                        scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/tmp/${WAR_NAME}
+                        """
+                        // Then, use sudo to move the WAR file to the Tomcat webapps directory
+                        sh """
+                        ssh -i ${SSH_KEY_PATH} ${TOMCAT_USER}@${TOMCAT_HOST} 'sudo mv /tmp/${WAR_NAME} /opt/tomcat/webapps/ROOT.war'
                         """
                     }
                 }
