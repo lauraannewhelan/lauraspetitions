@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        WAR_NAME = "lauraspetitions.war"
+        WAR_NAME = "lauraspetitions.war"  // Keep the WAR name the same
         TOMCAT_HOST = "13.60.215.49"
         TOMCAT_PORT = "8080"
         TOMCAT_USER = "ubuntu"
@@ -68,13 +68,13 @@ pipeline {
                 script {
                     // Deploy the WAR file to Tomcat using SCP
                     sshagent([SSH_CREDENTIALS_ID]) {
-                        // First, copy the WAR to a temporary directory
+                        // First, copy the WAR to a temporary directory on the Tomcat server
                         sh """
                         scp -i ${SSH_KEY_PATH} target/${WAR_NAME} ${TOMCAT_USER}@${TOMCAT_HOST}:/tmp/${WAR_NAME}
                         """
-                        // Then, use sudo to move the WAR file to the Tomcat webapps directory
+                        // Then, use sudo to move the WAR file to the Tomcat webapps directory under its own name (not ROOT.war)
                         sh """
-                        ssh -i ${SSH_KEY_PATH} ${TOMCAT_USER}@${TOMCAT_HOST} 'sudo mv /tmp/${WAR_NAME} /opt/tomcat/webapps/ROOT.war'
+                        ssh -i ${SSH_KEY_PATH} ${TOMCAT_USER}@${TOMCAT_HOST} 'sudo mv /tmp/${WAR_NAME} /opt/tomcat/webapps/lauraspetitions.war'
                         """
                     }
                 }
